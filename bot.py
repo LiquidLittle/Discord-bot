@@ -1,6 +1,11 @@
 import discord
 import os
 import Get_AniList as ga
+from dotenv import load_dotenv
+
+load_dotenv()
+
+
 client = discord.Client()
 
 
@@ -25,7 +30,7 @@ async def on_message(message):
             ga.search(message.content[1:-1]) + ")"
         e = discord.Embed(title='hello', url="https://discordapp.com",
                           description="lets see if this works " + link)
-        await message.channel.send("hello", embed=e)
+        await message.channel.send(embed=e)
 
 
 token = os.environ.get("DISCORD_BOT_TOKEN")
