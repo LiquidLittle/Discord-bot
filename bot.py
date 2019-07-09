@@ -1,4 +1,5 @@
 import discord
+import os
 import Get_AniList as ga
 client = discord.Client()
 
@@ -27,5 +28,6 @@ async def on_message(message):
         await message.channel.send("hello", embed=e)
 
 
-token = 'NTk2ODkwODI1MTMzMzkxODgy.XSF8WQ.HymTP82pPVZ9ukzoT5xzmTU8NlE'
+token = os.environ.get("DISCORD_BOT_TOKEN")
+
 client.run(token)
