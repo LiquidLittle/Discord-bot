@@ -19,7 +19,8 @@ query ($search: String) {
             title {
                 romaji
                 english
-            }
+                }
+            description
         }
     }
 }
@@ -33,34 +34,31 @@ def data_to_dict(json_result):
     ''' Returns a dictionary of the json query with id as the key and the
         title as the value
     '''
-    id_title_dict = {}
+    id_dict = {}
     media = json_result["data"]["Page"]["media"]
     for i in range(len(media)):
-        id_title_dict[media[i]["id"]] = media[i]["title"]
-    return id_title_dict
+        id_dict[media[i]["id"]] = {}
+        id_dict[media[i]["id"]]["title"] = media[i]["title"]
+        id_dict[media[i]["id"]]["description"] = media[i]["description"]
+    return id_dict
 
 
-def fuzzy_compare(id_title_dict, search_str):
+def fuzzy_compare(id_dict, search_str):
     curr_highest = {}  # simple list to hold id and similarity rate
     curr_highest["id"] = 0
-    curr_highest["highest"] = -1
-    curr_highest["name"] = ""
-    title = ""
-    for id in id_title_dict:
-        list = []
-        for titles in id_title_dict[id].values():
+    curr_highest["ratio"] = -1
+    # look through all the ids
+    for id in id_dict:
+        # look through each name in id ie. romaji or english
+        for titles in id_dict[id]["title"].values():
             if titles is not None:
-                list.append(fuzz.token_sort_ratio(search_str.lower(),
-                                                  titles.lower()))
-                title = titles
-            else:
-                list.append(0)
-
-        highest = max(list)
-        if highest >= curr_highest["highest"]:
-            curr_highest["id"] = id
-            curr_highest["highest"] = highest
-            curr_highest["name"] = title
+                ratio = fuzz.token_sort_ratio(search_str.lower(),
+                                              titles.lower())
+                if ratio > curr_highest["ratio"]:
+                    curr_highest["name"] = titles
+                    curr_highest["id"] = id
+                    curr_highest["ratio"] = ratio
+    curr_highest["description"] = id_dict[curr_highest["id"]]["description"]
     return curr_highest
 
 
@@ -76,9 +74,11 @@ def search(search):
     ans = {}
     ans["link"] = link
     ans["name"] = info["name"]
+    ans["description"] = info["description"].replace("<br>", "")
+    print(len(ans["description"]))
 
     return ans
 
 
 if __name__ == "__main__":
-    print(search("kimi no nawa"))
+    print(search("bakemonogatari"))

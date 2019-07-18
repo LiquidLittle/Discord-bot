@@ -30,7 +30,8 @@ async def on_message(message):
         link = "[AL Link]" + "(" + \
             info["link"] + ")"
         e = discord.Embed(title=info["name"],
-                          description=link)
+                          description=info["description"] + ' \n\n' + link)
+        # e.add_field(name="Synopsis", value=info["description"])
         await message.channel.send(embed=e)
 
 
