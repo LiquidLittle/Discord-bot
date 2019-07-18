@@ -41,20 +41,27 @@ def data_to_dict(json_result):
 
 
 def fuzzy_compare(id_title_dict, search_str):
-    curr_highest = [0, -1]  # simple list to hold id and similarity rate
+    curr_highest = {}  # simple list to hold id and similarity rate
+    curr_highest["id"] = 0
+    curr_highest["highest"] = -1
+    curr_highest["name"] = ""
+    title = ""
     for id in id_title_dict:
         list = []
         for titles in id_title_dict[id].values():
             if titles is not None:
                 list.append(fuzz.token_sort_ratio(search_str.lower(),
                                                   titles.lower()))
+                title = titles
             else:
                 list.append(0)
+
         highest = max(list)
-        if highest >= curr_highest[1]:
-            curr_highest[0] = id
-            curr_highest[1] = highest
-    return curr_highest[0]
+        if highest >= curr_highest["highest"]:
+            curr_highest["id"] = id
+            curr_highest["highest"] = highest
+            curr_highest["name"] = title
+    return curr_highest
 
 
 def search(search):
@@ -64,9 +71,13 @@ def search(search):
     response = requests.post(api_url, json={'query': query,
                                             'variables': variables})
     json_dict = json.loads(response.text)
-    id = fuzzy_compare(data_to_dict(json_dict), search)
-    link = url + str(id)
-    return link
+    info = fuzzy_compare(data_to_dict(json_dict), search)
+    link = url + str(info["id"])
+    ans = {}
+    ans["link"] = link
+    ans["name"] = info["name"]
+
+    return ans
 
 
 if __name__ == "__main__":

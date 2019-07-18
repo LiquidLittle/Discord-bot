@@ -26,10 +26,11 @@ async def on_message(message):
     if message.author == client.user:
         return
     if correct_struct(message):
+        info = ga.search(message.content[1:-1])
         link = "[AL Link]" + "(" + \
-            ga.search(message.content[1:-1]) + ")"
-        e = discord.Embed(title='hello', url="https://discordapp.com",
-                          description="lets see if this works " + link)
+            info["link"] + ")"
+        e = discord.Embed(title=info["name"],
+                          description=link)
         await message.channel.send(embed=e)
 
 
